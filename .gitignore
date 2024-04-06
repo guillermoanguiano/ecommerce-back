@@ -1,0 +1,18 @@
+# Dependencias
+/node_modules
+/node_modules/**/*
+
+# Archivos de registro
+npm-debug.log
+
+# Archivos generados por el IDE
+.vscode
+
+# Entorno de desarrollo
+.env
+
+# Archivos de configuración específicos del usuario
+.env.local
+
+# Archivos de respaldo
+*.bak
