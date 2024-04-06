@@ -1,4 +1,9 @@
+import { User } from "@/interfaces/User";
 import db from "../db/db";
+
+export const createItem = async (user: User) => {
+    
+}
 
 export const getItems = async () => {
     const [rows] = await db.query(

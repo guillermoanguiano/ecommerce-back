@@ -1,6 +1,16 @@
 import { Request, Response } from "express";
-import { getItem, getItems } from "../services/user.service";
+import { createItem, getItem, getItems } from "../services/user.service";
 import { handleHttp } from "../utils/error.handle";
+
+export const createUser = async(req: Request, res: Response) => {
+    try {
+        const body = req.body;
+        const data = await createItem(body);
+        res.send(data);
+    } catch (error) {
+        handleHttp(res, 'ERROR_CREATE_USER', error)
+    }
+}
 
 export const getUsers = async(req: Request, res: Response) => {
     try {
