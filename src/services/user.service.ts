@@ -1,21 +1,59 @@
 import { User } from "@/interfaces/User";
 import db from "../db/db";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+import bcrypt from "bcrypt";
 
-export const createItem = async (user: User) => {
-    
-}
+export class UserService {
+    private static async checkIfUserExists(email: string): Promise<Boolean> {
+        const [rows] = await db.query<RowDataPacket[]>(
+            "SELECT * FROM `Users` WHERE email = ?",
+            [email]
+        );
+        return rows.length > 0;
+    }
 
-export const getItems = async () => {
-    const [rows] = await db.query(
-        "SELECT u.id, u.firstName, u.lastName, u.email, u.admin FROM `Users` u"
-    );
-    return rows;
-};
+    static async createUser(user: User) {
+        const userExists = await this.checkIfUserExists(user.email);
+        if (userExists) {
+            throw new Error("User already exists");
+        }
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        if (!user.admin) {
+            user.admin = false;
+        }
+        const [result] = await db.query<ResultSetHeader>(
+            "INSERT INTO `Users` (`firstName`, `lastName`, `email`, `password`, `admin`) VALUES (?, ?, ?, ?, ?)",
+            [
+                user.firstName,
+                user.lastName,
+                user.email,
+                hashedPassword,
+                user.admin,
+            ]
+        );
+        if (result.affectedRows === 0) {
+            throw new Error("Error creating user");
+        }
+        return {
+            success: true,
+            message: "User created successfully",
+            userId: result.insertId,
+        };
+    }
 
-export const getItem = async (id: string) => {
-    const [rows] = await db.query(
-        "SELECT u.id, u.firstName, u.lastName, u.email, u.admin FROM `Users` u WHERE u.id = ?",
-        [id]
-    );
-    return rows;
+    // Change this to authenticate with email and password
+    static async authenticateUser() {
+        const [rows] = await db.query(
+            "SELECT u.id, u.firstName, u.lastName, u.email, u.admin FROM `Users` u"
+        );
+        return rows;
+    }
+
+    static async getUserById(id: string) {
+        const [rows] = await db.query(
+            "SELECT u.id, u.firstName, u.lastName, u.email, u.admin FROM `Users` u WHERE u.id = ?",
+            [id]
+        );
+        return rows;
+    }
 }

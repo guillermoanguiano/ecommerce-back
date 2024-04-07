@@ -5,7 +5,7 @@ const access: PoolOptions = {
     user: "root",
     password: "root",
     port: 3306,
-    database: "pruebas-memo",
+    database: "ecommerce",
 }
 
 const conn: Pool = createPool(access);
