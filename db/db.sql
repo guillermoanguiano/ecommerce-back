@@ -1,14 +1,16 @@
-CREATE DATABASE IF NOT EXISTS pruebas-memo;
+CREATE DATABASE IF NOT EXISTS `database_name`;
 
-USE pruebas-memo;
+USE `database_name`;
 
 CREATE TABLE IF NOT EXISTS `Users` (
-    `id` INT NOT NULL AUTO_INCREMENT,  
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  
     `firstName` VARCHAR(50) NOT NULL,
     `lastName` VARCHAR(50) NOT NULL,
     `email` VARCHAR(50) NOT NULL UNIQUE,
-    `password` VARCHAR(50) NOT NULL,
+    `password` VARCHAR(150) NOT NULL,
     `admin` BOOLEAN NOT NULL DEFAULT false
 )
 
-INSERT INTO `Users` (`firstName`, `lastName`, `email`, `password`, `admin`) VALUES ('Guillermo', 'Anguiano', 'jesus2001guillermo2@gmail.com', 'admin123456', true);
+/* 
+    Insert data in Users table
+*/
