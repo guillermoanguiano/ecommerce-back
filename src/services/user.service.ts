@@ -1,7 +1,8 @@
 import { User } from "@/interfaces/User";
-import db from "../db/db";
+import db from "@/db/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export class UserService {
     private static async checkIfUserExists(email: string): Promise<Boolean> {
@@ -41,8 +42,39 @@ export class UserService {
         };
     }
 
-    // Change this to authenticate with email and password
-    static async authenticateUser() {
+    static async authenticateUser(user: User) {
+        const [userExists] = await db.query<RowDataPacket[]>(
+            "SELECT * FROM `Users` WHERE email = ?",
+            [user.email]
+        );
+        if (userExists.length === 0) {
+            throw new Error("User not found");
+        }
+        const validatePassword = await bcrypt.compare(
+            user.password,
+            user.password
+        );
+        if (!validatePassword) {
+            throw new Error("Invalid password");
+        }
+        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const accessToken = jwt.sign(
+            {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                admin: user.admin,
+            },
+            accessTokenSecret,
+            {
+                expiresIn: "2h",
+            }
+        );
+        return { accessToken };
+    }
+
+    static async getUsers() {
         const [rows] = await db.query(
             "SELECT u.id, u.firstName, u.lastName, u.email, u.admin FROM `Users` u"
         );

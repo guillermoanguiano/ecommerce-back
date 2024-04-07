@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/user.service";
-import { handleHttp } from "../utils/error.handle";
+import { UserService } from "@/services/user.service";
+import { handleHttp } from "@/utils/error.handle";
+import { User } from "@/interfaces/User";
 
 export class UserController {
     static async createUser(req: Request, res: Response) {
@@ -13,10 +14,19 @@ export class UserController {
         }
     }
 
-    // Change this to authenticate with email and password
+    static async authenticateUser(req: Request, res: Response) {
+        try {
+            const body = req.body as User;
+            const data = await UserService.authenticateUser(body);
+            res.send(data);
+        } catch (error) {
+            handleHttp(res, "ERROR_AUTHENTICATE_USER", error);
+        }
+    }
+
     static async getUsers(req: Request, res: Response) {
         try {
-            const data = await UserService.authenticateUser();
+            const data = await UserService.getUsers();
             res.send(data);
         } catch (error) {
             handleHttp(res, "ERROR_GET_USERS", error);
