@@ -10,9 +10,6 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "declaration": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
   },
   "include": ["src/**/*.ts"]
 }

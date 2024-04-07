@@ -1,9 +1,8 @@
-import { User } from "@/interfaces/User";
-import db from "@/db/db";
+import { User } from "../interfaces/User";
+import db from "../db/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 export class UserService {
     private static async checkIfUserExists(email: string): Promise<Boolean> {
         const [rows] = await db.query<RowDataPacket[]>(

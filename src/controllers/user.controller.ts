@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { UserService } from "@/services/user.service";
-import { handleHttp } from "@/utils/error.handle";
-import { User } from "@/interfaces/User";
+import { UserService } from "../services/user.service";
+import { handleHttp } from "../utils/error.handle";
+import { User } from "../interfaces/User";
 
 export class UserController {
     static async createUser(req: Request, res: Response) {
