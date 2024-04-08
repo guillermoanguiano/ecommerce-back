@@ -1,6 +1,6 @@
 import chalk from './utils/colors';
 import express from 'express';
-import { port } from './config';
+import config from './config';
 import routes from './routes';
 import cors from 'cors';
 
@@ -10,8 +10,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.listen(port, () => {
-    chalk.success(`🚀 Server running on port ${port}`);
+app.listen(config.port, () => {
+    chalk.success(`🚀 Server running on port ${config.port}`);
 })
 
 // Routes

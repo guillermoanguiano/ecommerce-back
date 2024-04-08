@@ -1,11 +1,14 @@
+import config from "../config";
 import { createPool, Pool, PoolOptions } from "mysql2/promise";
 
+const { db } = config; 
+
 const access: PoolOptions = {
-    host: "localhost",
-    user: "root",
-    password: "root",
+    host: db.url,
+    user: db.user,
+    password: db.password,
     port: 3306,
-    database: "ecommerce",
+    database: db.name,
 }
 
 const conn: Pool = createPool(access);
