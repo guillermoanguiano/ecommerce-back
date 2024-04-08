@@ -4,9 +4,8 @@ import { handleHttp } from "../utils/error.handle";
 import { User } from "../interfaces/User";
 
 export class UserController {
-    static async createUser(req: Request, res: Response) {
+    static async createUser({ body }: Request, res: Response) {
         try {
-            const body = req.body;
             const data = await UserService.createUser(body);
             res.send(data);
         } catch (error) {
@@ -14,9 +13,8 @@ export class UserController {
         }
     }
 
-    static async authenticateUser(req: Request, res: Response) {
+    static async authenticateUser({ body }: Request, res: Response) {
         try {
-            const body = req.body as User;
             const data = await UserService.authenticateUser(body);
             res.send(data);
         } catch (error) {
@@ -24,7 +22,7 @@ export class UserController {
         }
     }
 
-    static async getUsers(req: Request, res: Response) {
+    static async getUsers(_: Request, res: Response) {
         try {
             const data = await UserService.getUsers();
             res.send(data);

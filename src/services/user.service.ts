@@ -43,7 +43,7 @@ export class UserService {
         };
     }
 
-    static async authenticateUser(user: User) {
+    static async authenticateUser(user: { email: string; password: string }) {
         const [userExists] = await db.query<RowDataPacket[]>(
             "SELECT * FROM `Users` WHERE email = ?",
             [user.email]
@@ -69,7 +69,7 @@ export class UserService {
         const accessToken = jwt.sign(userData, accessTokenSecret, {
             expiresIn: "1h",
         });
-        return { accessToken, user: userData };
+        return { ...userData, accessToken };
     }
 
     static async getUsers() {
