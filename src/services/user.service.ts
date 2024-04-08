@@ -3,6 +3,8 @@ import db from "../db/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import config from "../config";
+
 export class UserService {
     private static async checkIfUserExists(email: string): Promise<Boolean> {
         const [rows] = await db.query<RowDataPacket[]>(
@@ -51,26 +53,23 @@ export class UserService {
         }
         const validatePassword = await bcrypt.compare(
             user.password,
-            user.password
+            userExists[0].password
         );
         if (!validatePassword) {
             throw new Error("Invalid password");
         }
-        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-        const accessToken = jwt.sign(
-            {
-                id: user.id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                admin: user.admin,
-            },
-            accessTokenSecret,
-            {
-                expiresIn: "2h",
-            }
-        );
-        return { accessToken };
+        const userData = {
+            id: userExists[0].id,
+            firstName: userExists[0].firstName,
+            lastName: userExists[0].lastName,
+            email: userExists[0].email,
+            admin: userExists[0].admin,
+        };
+        const accessTokenSecret = config.jwtSecret;
+        const accessToken = jwt.sign(userData, accessTokenSecret, {
+            expiresIn: "1h",
+        });
+        return { accessToken, user: userData };
     }
 
     static async getUsers() {

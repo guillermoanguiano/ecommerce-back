@@ -7,13 +7,22 @@ const router = Router();
 
 router.post(
     "/",
-    body("firstName").exists().withMessage("First Name is required"),
-    body("lastName").exists().withMessage("Last Name is required"),
-    body("email").exists().withMessage("Email is required"),
-    body("password").exists().withMessage("Password is required"),
+    body("firstName").notEmpty().withMessage("First Name is required"),
+    body("lastName").notEmpty().withMessage("Last Name is required"),
+    body("email").notEmpty().withMessage("Email is required"),
+    body("password").notEmpty().withMessage("Password is required"),
     handleInputErrors,
     UserController.createUser
 );
+
+router.post(
+    "/auth",
+    body("email").notEmpty().withMessage("Email is required"),
+    body("password").notEmpty().withMessage("Password is required"),
+    handleInputErrors,
+    UserController.authenticateUser
+);
+
 router.get("/", UserController.getUsers);
 router.get(
     "/:id",
