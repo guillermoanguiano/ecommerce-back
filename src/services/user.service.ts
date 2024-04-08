@@ -1,4 +1,4 @@
-import { User } from "../interfaces/User";
+import { User } from "../interfaces/user.interface";
 import db from "../db/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import bcrypt from "bcrypt";

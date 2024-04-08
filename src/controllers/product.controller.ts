@@ -1,10 +1,13 @@
 import type { Response, Request } from "express";
 import { handleHttp } from "../utils/error.handle";
+import { ProductService } from "../services/product.service";
+import { Product } from "../interfaces/product.interface";
 
 export class ProductController {
     static async createProduct({ body }: Request, res: Response) {
         try {
-            res.send("Hola");
+            const data = await ProductService.createProduct(body);
+            res.send(data);
         } catch (error) {
             handleHttp(res, "ERROR_CREATE_USER", error);
         }
