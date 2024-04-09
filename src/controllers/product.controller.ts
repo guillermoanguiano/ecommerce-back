@@ -1,7 +1,6 @@
 import type { Response, Request } from "express";
 import { handleHttp } from "../utils/error.handle";
 import { ProductService } from "../services/product.service";
-import { Product } from "../interfaces/product.interface";
 
 export class ProductController {
     static async createProduct({ body }: Request, res: Response) {
