@@ -85,20 +85,36 @@ export class ProductService {
 
     static async getProductById(id: string) {}
 
-    static async updateProduct(product: Product) {}
+    static async updateProduct(product: Product) {
+        const { name, description, price, image, category, stock } = product;
+    }
 
     static async deleteProduct(id: string) {
-        const [rows] = await db.query<ResultSetHeader>(
-            "DELETE FROM `Products` WHERE id = ?",
-            [id]
-        );
-        if (rows.affectedRows === 0) {
+        try {
+            const [product] = await db.query<RowDataPacket[]>(
+                "SELECT imagePublicId FROM `Products` WHERE id = ?",
+                [id]
+            );
+            await Cloudinary.uploader.destroy(product[0].imagePublicId, (err, result) => {
+                if (err) {
+                    throw new Error("Error deleting product");
+                }
+                console.log(result);
+            });
+            const [rows] = await db.query<ResultSetHeader>(
+                "DELETE FROM `Products` WHERE id = ?",
+                [id]
+            );
+            if (rows.affectedRows === 0) {
+                throw new Error("Error deleting product");
+            }
+            return {
+                success: true,
+                message: "Product deleted successfully",
+                productId: id,
+            };
+        } catch (error) {
             throw new Error("Error deleting product");
-        }
-        return {
-            success: true,
-            message: "Product deleted successfully",
-            productId: id,
         }
     }
 }
