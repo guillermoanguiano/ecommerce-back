@@ -2,7 +2,6 @@ import db from "../db/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { Product } from "../interfaces/product.interface";
 import Cloudinary from "../utils/cloudinary";
-import { Query } from "express-serve-static-core";
 
 export class ProductService {
     private static async checkIfProductExists(
@@ -61,28 +60,45 @@ export class ProductService {
 
     static async getProducts(page: string = "1", limit: string = "10") {
         const offset = (Number(page) - 1) * Number(limit);
-        const [rows] = await db.query<RowDataPacket[]>(
-            "SELECT u.id, u.name, u.description, u.price, u.imageUrl, u.stock, c.name, COUNT(*) AS total, c.name AS category FROM `Products` u JOIN `ProductCategories` c ON u.categoryId = c.id GROUP BY u.id LIMIT ? OFFSET ?",
-            [Number(limit), offset]
-        );
-        if (!rows.length) {
-            return { message: "No products found" };
-        }
-        const product = {
-            id: rows[0].id,
-            name: rows[0].name,
-            description: rows[0].description,
-            price: rows[0].price,
-            image: rows[0].imageUrl,
-            category: rows[0].category,
-            stock: rows[0].stock,
+
+        const query = `
+            SELECT u.id, u.name, u.description, u.price, u.imageUrl, u.stock, c.name AS category FROM \`Products\` u 
+            JOIN \`ProductCategories\` c ON u.categoryId = c.id 
+            LIMIT ? OFFSET ?;
+        `;
+        const queryCount = "SELECT COUNT(*) AS total FROM `Products`";
+
+        const [rows] = await db.query<RowDataPacket[]>(query, [
+            Number(limit),
+            offset,
+        ]);
+        const [countRows] = await db.query<RowDataPacket[]>(queryCount);
+        if (countRows[0].total === 0) {
+            return { total: 0, list: [] };
         }
         const response = {
-            total: rows[0].total,
-            products: [product]
-        }
+            total: countRows[0].total,
+            list: rows,
+        };
         return response;
     }
 
     static async getProductById(id: string) {}
+
+    static async updateProduct(product: Product) {}
+
+    static async deleteProduct(id: string) {
+        const [rows] = await db.query<ResultSetHeader>(
+            "DELETE FROM `Products` WHERE id = ?",
+            [id]
+        );
+        if (rows.affectedRows === 0) {
+            throw new Error("Error deleting product");
+        }
+        return {
+            success: true,
+            message: "Product deleted successfully",
+            productId: id,
+        }
+    }
 }

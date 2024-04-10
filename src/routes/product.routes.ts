@@ -25,4 +25,11 @@ router.get(
     ProductController.getProductById
 );
 
+router.delete(
+    "/:id",
+    param("id").isNumeric().withMessage("Invalid ID"),
+    handleInputErrors,
+    ProductController.deleteProduct
+);
+
 export default router;

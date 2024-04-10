@@ -43,7 +43,8 @@ export class ProductController {
     static async deleteProduct(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            res.send("Hola");
+            const data = await ProductService.deleteProduct(id);
+            res.send(data);
         } catch (error) {
             handleHttp(res, "ERROR_GET_USER", error);
         }
