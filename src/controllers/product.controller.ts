@@ -12,9 +12,11 @@ export class ProductController {
         }
     }
 
-    static async getProducts(_: Request, res: Response) {
+    static async getProducts(req: Request, res: Response) {
         try {
-            res.send("Hola");
+            const { page, limit } = req.query;
+            const data = await ProductService.getProducts(page as string, limit as string);
+            res.send(data);
         } catch (error) {
             handleHttp(res, "ERROR_GET_USERS", error);
         }

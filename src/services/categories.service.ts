@@ -9,9 +9,10 @@ export class CategoriesService {
         )
         return rows.length > 0;
     }
+
     static async getCategories() {
         const [rows] = await db.query<RowDataPacket[]>(
-            "SELECT * FROM `ProductCategories`"
+            "SELECT id, name FROM `ProductCategories`"
         )
         return rows
     }
