@@ -11,7 +11,7 @@ router.post(
     body("description").notEmpty().withMessage("Last Name is required"),
     body("price").notEmpty().withMessage("Email is required"),
     body("image").notEmpty().withMessage("Password is required"),
-    body("categoryId").notEmpty().withMessage("Password is required"),
+    body("category").notEmpty().withMessage("Password is required"),
     body("stock").notEmpty().withMessage("Password is required"),
     handleInputErrors,
     ProductController.createProduct

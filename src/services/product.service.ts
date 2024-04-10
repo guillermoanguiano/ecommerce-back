@@ -36,7 +36,6 @@ export class ProductService {
             imageUrl: result.secure_url,
             imagePublicId: result.public_id,
         };
-        console.log(img);
         const [rows] = await db.query<ResultSetHeader>(
             "INSERT INTO `Products` (`name`, `description`, `price`, `imageUrl`, `categoryId`, `stock`, `imagePublicId`) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [

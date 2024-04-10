@@ -1,4 +1,4 @@
-import { CategoriesService } from "../services/categories.services";
+import { CategoriesService } from "../services/categories.service";
 import type { Response, Request } from "express";
 import { handleHttp } from "../utils/error.handle";
 
@@ -10,6 +10,16 @@ export class CategoriesController {
             res.send(data);
         } catch (error) {
             handleHttp(res, "ERROR_GET_CATEGORIES", error);
+        }
+    }
+
+    static async createCategory({ body }: Request, res: Response) {
+        try {
+            const { name } = body
+            const data = await CategoriesService.createCategory(name);
+            res.send(data);
+        } catch (error) {
+            handleHttp(res, "ERROR_CREATE_CATEGORY", error);
         }
     }
 }
