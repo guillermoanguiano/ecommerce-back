@@ -2,15 +2,13 @@ import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
 import { param, body } from "express-validator";
 import { handleInputErrors } from "../middlewares/validation";
+import { validateRequiredFields } from "../utils/error.handle";
 
 const router = Router();
 
 router.post(
     "/",
-    body("firstName").notEmpty().withMessage("First Name is required"),
-    body("lastName").notEmpty().withMessage("Last Name is required"),
-    body("email").notEmpty().withMessage("Email is required"),
-    body("password").notEmpty().withMessage("Password is required"),
+    ...validateRequiredFields(["firstName", "lastName", "email", "password"]),
     handleInputErrors,
     UserController.createUser
 );
