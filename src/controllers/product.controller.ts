@@ -8,7 +8,7 @@ export class ProductController {
             const data = await ProductService.createProduct(body);
             res.send(data);
         } catch (error) {
-            handleHttp(res, "ERROR_CREATE_USER", error);
+            handleHttp(res, "Error while creating product", error);
         }
     }
 
@@ -18,25 +18,26 @@ export class ProductController {
             const data = await ProductService.getProducts(page as string, limit as string);
             res.send(data);
         } catch (error) {
-            handleHttp(res, "ERROR_GET_USERS", error);
+            handleHttp(res, "Error while getting products", error);
         }
     }
 
     static async getProductById(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            res.send("Hola");
+            const data = await ProductService.getProductById(id);
+            res.send(data);
         } catch (error) {
-            handleHttp(res, "ERROR_GET_USER", error);
+            handleHttp(res, "Error getting product", error);
         }
     }
 
-    static async updateProduct(req: Request, res: Response) {
+    static async updateProduct({ body }: Request, res: Response) {
         try {
-            const { id } = req.params;
-            res.send("Hola");
+            const data = await ProductService.updateProduct(body);
+            res.send(data);
         } catch (error) {
-            handleHttp(res, "ERROR_GET_USER", error);
+            handleHttp(res, "Error updating product", error);
         }
     }
 
@@ -46,7 +47,7 @@ export class ProductController {
             const data = await ProductService.deleteProduct(id);
             res.send(data);
         } catch (error) {
-            handleHttp(res, "ERROR_GET_USER", error);
+            handleHttp(res, "Error deleting product", error);
         }
     }
 }

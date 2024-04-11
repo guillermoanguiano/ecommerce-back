@@ -8,11 +8,11 @@ const router = Router();
 router.post(
     "/",
     body("name").notEmpty().withMessage("Name is required"),
-    body("description").notEmpty().withMessage("Last Name is required"),
-    body("price").notEmpty().withMessage("Email is required"),
-    body("image").notEmpty().withMessage("Password is required"),
-    body("category").notEmpty().withMessage("Password is required"),
-    body("stock").notEmpty().withMessage("Password is required"),
+    body("description").notEmpty().withMessage("Description is required"),
+    body("price").notEmpty().withMessage("Price is required"),
+    body("image").notEmpty().withMessage("Image is required"),
+    body("category").notEmpty().withMessage("Category is required"),
+    body("stock").notEmpty().withMessage("Stock is required"),
     handleInputErrors,
     ProductController.createProduct
 );
@@ -24,6 +24,19 @@ router.get(
     handleInputErrors,
     ProductController.getProductById
 );
+
+router.put(
+    "/:id",
+    param("id").isNumeric().withMessage("Invalid ID"),
+    body("name").notEmpty().withMessage("Name is required"),
+    body("description").notEmpty().withMessage("Description is required"),
+    body("price").notEmpty().withMessage("Price is required"),
+    body("image").notEmpty().withMessage("Image is required"),
+    body("category").notEmpty().withMessage("Category is required"),
+    body("stock").notEmpty().withMessage("Stock is required"),
+    handleInputErrors,
+    ProductController.updateProduct
+)
 
 router.delete(
     "/:id",

@@ -73,7 +73,7 @@ export class ProductService {
             offset,
         ]);
         const [countRows] = await db.query<RowDataPacket[]>(queryCount);
-        if (countRows[0].total === 0) {
+        if (!countRows[0].total) {
             return { total: 0, list: [] };
         }
         const response = {
@@ -83,10 +83,68 @@ export class ProductService {
         return response;
     }
 
-    static async getProductById(id: string) {}
+    static async getProductById(id: string) {
+        const [rows] = await db.query<RowDataPacket[]>(
+            "SELECT u.id, u.name, u.description, u.price, u.imageUrl, u.stock, c.name AS category FROM `Products` u JOIN `ProductCategories` c ON u.categoryId = c.id WHERE u.id = ?",
+            [id]
+        );
+        if (!rows.length) {
+            throw new Error("Product not found");
+        }
+        return rows[0];
+    }
 
     static async updateProduct(product: Product) {
-        const { name, description, price, image, category, stock } = product;
+        const { name, description, price, image, category, stock, id } =
+            product;
+        const [categoryRow] = await db.query<RowDataPacket[]>(
+            "SELECT id FROM `ProductCategories` WHERE name = ?",
+            [category]
+        );
+        if (!categoryRow.length) {
+            throw new Error("Category not found");
+        }
+        const categoryId = categoryRow[0].id;
+        const [imgId] = await db.query<RowDataPacket[]>(
+            "SELECT imagePublicId FROM `Products` WHERE id = ?",
+            [id]
+        );
+        await Cloudinary.uploader.destroy(
+            imgId[0].imagePublicId,
+            (err, result) => {
+                if (err) {
+                    throw new Error("Error deleting product");
+                }
+                console.log(result);
+            }
+        );
+        const result = await Cloudinary.uploader.upload(image, {
+            folder: "products",
+        });
+        const img = {
+            imageUrl: result.secure_url,
+            imagePublicId: result.public_id,
+        };
+        const [rows] = await db.query<ResultSetHeader>(
+            "UPDATE `Products` SET `name` = ?, `description` = ?, `price` = ?, `imageUrl` = ?, `categoryId` = ?, `stock` = ?, `imagePublicId` = ? WHERE `id` = ?",
+            [
+                name,
+                description,
+                price,
+                img.imageUrl,
+                categoryId,
+                stock,
+                img.imagePublicId,
+            ]
+        );
+        if (!rows.affectedRows) {
+            throw new Error("Error updating product");
+        }
+        return {
+            success: true,
+            message: "Product updated successfully",
+            productId: id,
+        };
     }
 
     static async deleteProduct(id: string) {
@@ -95,12 +153,15 @@ export class ProductService {
                 "SELECT imagePublicId FROM `Products` WHERE id = ?",
                 [id]
             );
-            await Cloudinary.uploader.destroy(product[0].imagePublicId, (err, result) => {
-                if (err) {
-                    throw new Error("Error deleting product");
+            await Cloudinary.uploader.destroy(
+                product[0].imagePublicId,
+                (err, result) => {
+                    if (err) {
+                        throw new Error("Error deleting product");
+                    }
+                    console.log(result);
                 }
-                console.log(result);
-            });
+            );
             const [rows] = await db.query<ResultSetHeader>(
                 "DELETE FROM `Products` WHERE id = ?",
                 [id]
