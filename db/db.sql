@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS `Products` (
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(50) NOT NULL,
     `price` DECIMAL(10,2) NOT NULL,
-    `image` VARCHAR(50) NOT NULL,
+    `imageUrl` VARCHAR(150) NOT NULL,
     `categoryId` INT NOT NULL,
     `stock` INT NOT NULL,
+    `imagePublicId` VARCHAR(150) NOT NULL
 
     FOREIGN KEY (categoryId) REFERENCES ProductCategories(id)
 )
@@ -26,6 +27,15 @@ CREATE TABLE IF NOT EXISTS `Products` (
 CREATE TABLE IF NOT EXISTS `ProductCategories` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  
     `name` VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE IF NOT EXISTS `ProductImages` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  
+    `productId` INT NOT NULL,
+    `imageUrl` VARCHAR(150) NOT NULL,
+    `imagePublicId` VARCHAR(150) NOT NULL
+
+    FOREIGN KEY (productId) REFERENCES Products(id)
 )
 
 CREATE TABLE IF NOT EXISTS `Address` (

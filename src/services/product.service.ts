@@ -49,6 +49,7 @@ export class ProductService {
             ]
         );
         if (rows.affectedRows === 0) {
+            await Cloudinary.uploader.destroy(img.imagePublicId);
             throw new Error("Error creating product");
         }
         return {

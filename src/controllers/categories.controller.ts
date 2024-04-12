@@ -15,8 +15,8 @@ export class CategoriesController {
 
     static async createCategory({ body }: Request, res: Response) {
         try {
-            const { name } = body
-            const data = await CategoriesService.createCategory(name);
+            const { name, icon } = body
+            const data = await CategoriesService.createCategory(name, icon);
             res.send(data);
         } catch (error) {
             handleHttp(res, "ERROR_CREATE_CATEGORY", error);
