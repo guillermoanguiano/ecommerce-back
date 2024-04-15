@@ -22,4 +22,14 @@ export class CategoriesController {
             handleHttp(res, "ERROR_CREATE_CATEGORY", error);
         }
     }
+
+    static async deleteCategory(req: Request, res: Response) {
+        try { 
+            const { id } = req.params;
+            const data = await CategoriesService.deleteCategory(id);
+            res.send(data);
+        } catch (error) {
+            handleHttp(res, "ERROR_DELETE_CATEGORY", error);
+        }
+    }
 }

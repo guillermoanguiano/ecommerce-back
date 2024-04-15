@@ -45,4 +45,43 @@ export class CategoriesService {
             categoryId: rows.insertId
         }
     }
+
+    static async updateCategory(id: number, name: string, icon: string) {
+        const result = await Cloudinary.uploader.upload(icon, {
+            folder: "categories"
+        })
+        const [rows] = await db.query<ResultSetHeader>(
+            "UPDATE `ProductCategories` SET `name` = ?, `icon` = ?, `iconId` = ? WHERE `id` = ?",
+            [
+                name,
+                result.secure_url,
+                result.public_id,
+                id
+            ]
+        )
+        if (rows.affectedRows === 0) {
+            throw new Error("Error updating category");
+        }
+
+        return {
+            success: true,
+            message: "Category updated successfully",
+            categoryId: id
+        }
+    }
+
+    static async deleteCategory(id: string) {
+        const [rows] = await db.query<ResultSetHeader>(
+            "DELETE FROM `ProductCategories` WHERE id = ?",
+            [id]
+        )
+        if (rows.affectedRows === 0) {
+            throw new Error("Error deleting category");
+        }
+        return {
+            success: true,
+            message: "Category deleted successfully",
+            categoryId: id
+        }
+    }
 }
