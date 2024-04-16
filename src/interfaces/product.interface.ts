@@ -7,3 +7,8 @@ export interface Product {
     category: string;
     stock: number;
 }
+
+export type CloudinaryResult = {
+    imageUrl: string;
+    imagePublicId: string;
+}

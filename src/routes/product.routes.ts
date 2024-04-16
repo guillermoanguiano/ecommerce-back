@@ -13,6 +13,14 @@ router.post(
     ProductController.createProduct
 );
 
+router.post(
+    "/images/:productId",
+    param("productId").isNumeric().withMessage("Invalid ID"),
+    body("image").notEmpty().withMessage("Image is required"),
+    handleInputErrors,
+    ProductController.UploadProductImages
+)
+
 router.get("/", ProductController.getProducts);
 router.get(
     "/:id",

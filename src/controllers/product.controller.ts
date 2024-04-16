@@ -12,6 +12,17 @@ export class ProductController {
         }
     }
 
+    static async UploadProductImages(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const { images } = req.body;
+            const data = await ProductService.InsertProductImages(Number(id), images);
+            res.send(data);
+        } catch (error) {
+            handleHttp(res, "Error while uploading images", error);
+        }
+    }
+
     static async getProducts(req: Request, res: Response) {
         try {
             const { page, limit } = req.query;

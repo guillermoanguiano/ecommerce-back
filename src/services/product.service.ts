@@ -1,7 +1,7 @@
 import db from "../db/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { Product } from "../interfaces/product.interface";
-import Cloudinary from "../utils/cloudinary";
+import { CloudinaryResult, Product } from "../interfaces/product.interface";
+import Cloudinary from '../utils/cloudinary';
 
 export class ProductService {
     private static async checkIfProductExists(
@@ -57,6 +57,40 @@ export class ProductService {
             message: "Product created successfully",
             productId: rows.insertId,
         };
+    }
+
+    static async InsertProductImages( productId: number, Image: string[]) {
+        const [productExists] = await db.query<RowDataPacket[]>(
+            "SELECT * FROM `Products` WHERE id = ?",
+        )
+        if (!productExists.length) {
+            throw new Error("Product not found");
+        }
+        const result: Promise<CloudinaryResult>[] = Image.map(async (image) => {
+            const res = await Cloudinary.uploader.upload(image, {
+                folder: "products/" + productId,
+            });
+            return {
+                imageUrl: res.secure_url,
+                imagePublicId: res.public_id,
+            };
+        });
+        const imagesData = await Promise.all(result);
+        if(imagesData.length === 0) {
+            throw new Error("Error uploading images");
+        }
+        for (const image of imagesData) {
+            await db.query<ResultSetHeader>(
+                "INSERT INTO `ProductImages` (`productId`, `imageUrl`, `imagePublicId`) VALUES (?, ?, ?)",
+                [productId, image.imageUrl, image.imagePublicId]
+            );
+        }
+
+        return {
+            success: true,
+            message: "Product images created successfully",
+            productId: productId,
+        }
     }
 
     static async getProducts(page: string = "1", limit: string = "10") {
