@@ -1,1 +1,2 @@
 # Implementar verificacion de email al momento de crear un usuario.
+# Corregir el servicio de agregar producto para que almacene todas las imagenes dentro de la tabla correspondiente y al igual que la ruta y controlador para ajustar que recibe un arreglo de imagenes y un una solo. 
