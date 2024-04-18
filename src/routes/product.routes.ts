@@ -32,7 +32,8 @@ router.get(
 router.put(
     "/:id",
     param("id").isNumeric().withMessage("Invalid ID"),
-    ...validateRequiredFields(["name", "description", "price", "image", "category", "stock"]),
+    ...validateRequiredFields(["name", "description", "price", "category", "stock"]),
+    body("image").notEmpty().isBase64().withMessage("Image is required"),
     handleInputErrors,
     ProductController.updateProduct
 )

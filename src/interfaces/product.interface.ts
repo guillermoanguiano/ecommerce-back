@@ -6,6 +6,7 @@ export interface Product {
     image: string;
     category: string;
     stock: number;
+    images?: string[];
 }
 
 export type CloudinaryResult = {
