@@ -91,7 +91,6 @@ export class ProductService {
 
     static async getProducts(page: number = 1, limit: number = 10) {
         const offset = page === 1 ? 0 : (page - 1) * limit;
-        console.log(offset);
         const query = `
             SELECT 
                 u.id, 
@@ -111,10 +110,14 @@ export class ProductService {
                 u.id
             LIMIT ? OFFSET ?;
         `;
-        const queryCount = "SELECT COUNT(*) AS total FROM `Products`";
-
         const [rows] = await db.query<RowDataPacket[]>(query, [limit, offset]);
+        const queryCount = `
+            SELECT 
+                COUNT(*) AS total 
+            FROM Products;
+        `;
         const [countRows] = await db.query<RowDataPacket[]>(queryCount);
+        console.log(countRows[0].total);
         if (!countRows[0].total) {
             return { total: 0, list: [] };
         }
@@ -122,12 +125,11 @@ export class ProductService {
             if (row.imageUrls) {
                 row.imageUrls = row.imageUrls.split(",");
             }
-        })
-        const response = {
+        });
+        return {
             total: countRows[0].total,
             list: rows,
         };
-        return response;
     }
 
     static async getProductById(id: string) {
