@@ -20,7 +20,6 @@ export class ProductService {
             "SELECT * FROM `Products` WHERE id = ?",
             [productId]
         );
-        console.log(productId);
         if (!productExists.length) {
             throw new Error("Product not found");
         }
@@ -77,7 +76,7 @@ export class ProductService {
             [name, description, price, categoryId, stock]
         );
         const id = rows.insertId;
-        const imgResult = await this.InsertProductImages(id, product.images);
+        const imgResult = await this.InsertProductImages(id, images);
         if (!imgResult.success) {
             throw new Error("Error uploading images");
         }
@@ -117,7 +116,6 @@ export class ProductService {
             FROM Products;
         `;
         const [countRows] = await db.query<RowDataPacket[]>(queryCount);
-        console.log(countRows[0].total);
         if (!countRows[0].total) {
             return { total: 0, list: [] };
         }
@@ -164,7 +162,6 @@ export class ProductService {
                 if (err) {
                     throw new Error("Error deleting product");
                 }
-                console.log(result);
             }
         );
         const result = await Cloudinary.uploader.upload(image, {
@@ -198,19 +195,31 @@ export class ProductService {
 
     static async deleteProduct(id: string) {
         try {
-            const [product] = await db.query<RowDataPacket[]>(
-                "SELECT imagePublicId FROM `Products` WHERE id = ?",
+            const [productExists] = await db.query<RowDataPacket[]>(
+                "SELECT * FROM `Products` WHERE id = ?",
                 [id]
-            );
-            await Cloudinary.uploader.destroy(
-                product[0].imagePublicId,
-                (err, result) => {
+            )
+            if (!productExists.length) {
+                throw new Error("Product not found");
+            }
+            const query = `
+                SELECT 
+                    GROUP_CONCAT(imagePublicId) AS imagePublicIds
+                FROM ProductImages 
+                WHERE productId = ?;
+            `;
+            const [imgIds] = await db.query<RowDataPacket[]>(query, [id]);
+            const imagePublicIds = imgIds[0].imagePublicIds.split(",");
+
+            console.log('jala')
+            for (const imagePublicId of imagePublicIds) {
+                await Cloudinary.uploader.destroy(imagePublicId, (err, result) => {
                     if (err) {
-                        throw new Error("Error deleting product");
+                        throw new Error("Error deleting images");
                     }
-                    console.log(result);
-                }
-            );
+                });
+            }
+            // Here is the error, it's not working, but I don't know why
             const [rows] = await db.query<ResultSetHeader>(
                 "DELETE FROM `Products` WHERE id = ?",
                 [id]
