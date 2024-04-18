@@ -26,7 +26,7 @@ export class ProductController {
     static async getProducts(req: Request, res: Response) {
         try {
             const { page, limit } = req.query;
-            const data = await ProductService.getProducts(page as string, limit as string);
+            const data = await ProductService.getProducts(Number(page), Number(limit));
             res.send(data);
         } catch (error) {
             handleHttp(res, "Error while getting products", error);

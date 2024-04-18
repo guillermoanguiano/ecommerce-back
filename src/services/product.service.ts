@@ -20,7 +20,7 @@ export class ProductService {
             "SELECT * FROM `Products` WHERE id = ?",
             [productId]
         );
-        console.log(productId)
+        console.log(productId);
         if (!productExists.length) {
             throw new Error("Product not found");
         }
@@ -52,7 +52,7 @@ export class ProductService {
     }
 
     static async createProduct(product: Product) {
-        const { name, description, price, image, category, stock } = product;
+        const { name, description, price, images, category, stock } = product;
         const [categoryRow] = await db.query<RowDataPacket[]>(
             "SELECT id FROM `ProductCategories` WHERE name = ?",
             [category]
@@ -65,33 +65,23 @@ export class ProductService {
         if (productExists) {
             throw new Error("Product already exists");
         }
-        const result = await Cloudinary.uploader.upload(image, {
-            folder: "products",
-        });
-        const img = {
-            imageUrl: result.secure_url,
-            imagePublicId: result.public_id,
-        };
+        // const result = await Cloudinary.uploader.upload(image, {
+        //     folder: "products",
+        // });
+        // const img = {
+        //     imageUrl: result.secure_url,
+        //     imagePublicId: result.public_id,
+        // };
         const [rows] = await db.query<ResultSetHeader>(
-            "INSERT INTO `Products` (`name`, `description`, `price`, `imageUrl`, `categoryId`, `stock`, `imagePublicId`) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [
-                name,
-                description,
-                price,
-                img.imageUrl,
-                categoryId,
-                stock,
-                img.imagePublicId,
-            ]
+            "INSERT INTO `Products` (`name`, `description`, `price`, `categoryId`, `stock`) VALUES (?, ?, ?, ?, ?)",
+            [name, description, price, categoryId, stock]
         );
-        if (rows.affectedRows === 0) {
-            await Cloudinary.uploader.destroy(img.imagePublicId);
-            throw new Error("Error creating product");
+        const id = rows.insertId;
+        const imgResult = await this.InsertProductImages(id, product.images);
+        if (!imgResult.success) {
+            throw new Error("Error uploading images");
         }
-        if (product.images) {
-            const id = rows.insertId;
-            await this.InsertProductImages(id, product.images);
-        }
+
         return {
             success: true,
             message: "Product created successfully",
@@ -99,24 +89,40 @@ export class ProductService {
         };
     }
 
-    static async getProducts(page: string = "1", limit: string = "10") {
-        const offset = (Number(page) - 1) * Number(limit);
-
+    static async getProducts(page: number = 1, limit: number = 10) {
+        const offset = page === 1 ? 0 : (page - 1) * limit;
+        console.log(offset);
         const query = `
-            SELECT u.id, u.name, u.description, u.price, u.imageUrl, u.stock, c.name AS category FROM \`Products\` u 
-            JOIN \`ProductCategories\` c ON u.categoryId = c.id 
+            SELECT 
+                u.id, 
+                u.name, 
+                u.description, 
+                u.price, 
+                GROUP_CONCAT(pi.imageUrl) AS imageUrls, 
+                u.stock, 
+                c.name AS category 
+            FROM 
+                Products u 
+            LEFT JOIN 
+                ProductCategories c ON u.categoryId = c.id 
+            LEFT JOIN 
+                ProductImages pi ON u.id = pi.productId
+            GROUP BY 
+                u.id
             LIMIT ? OFFSET ?;
         `;
         const queryCount = "SELECT COUNT(*) AS total FROM `Products`";
 
-        const [rows] = await db.query<RowDataPacket[]>(query, [
-            Number(limit),
-            offset,
-        ]);
+        const [rows] = await db.query<RowDataPacket[]>(query, [limit, offset]);
         const [countRows] = await db.query<RowDataPacket[]>(queryCount);
         if (!countRows[0].total) {
             return { total: 0, list: [] };
         }
+        rows.forEach((row) => {
+            if (row.imageUrls) {
+                row.imageUrls = row.imageUrls.split(",");
+            }
+        })
         const response = {
             total: countRows[0].total,
             list: rows,
